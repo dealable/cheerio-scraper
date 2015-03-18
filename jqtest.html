@@ -1,0 +1,15 @@
+<head>
+  <title>jqtest</title>
+</head>
+
+<body>
+  <h1>jqTest</h1>
+  {{> hello}}
+</body>
+
+<template name="hello">
+  URL  to  scrape   <input type="text" id="tb_url" value={{hockeyUrl}}><br>
+  Pattern to match  <input type="text" id="tb_format" value={{hockeyFormat}}><br>
+  <input type="text" id="tb_ch" placeholder="cheerio.js"><button id="bt_ch">run cheerio.js</button><br>
+  <input type="text" id="tb_jq" placeholder="jquery/jsdom"><button id="bt_jq">run jquery/jsdom</button>
+</template>
