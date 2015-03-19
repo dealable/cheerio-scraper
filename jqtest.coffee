@@ -1,4 +1,15 @@
-# Useful site: http://www.datafiddle.net/allscripts
+###
+Useful sites
+https://coffeescript-cookbook.github.io/chapters/functions/splat_arguments
+http://coffeescript.org/#literals
+https://github.com/lapwinglabs/x-ray
+http://js2coffee.thomaskalka.de/
+http://js2.coffee/
+https://github.com/mquandalle/meteor-jade
+http://html2jade.aaron-powell.com/
+https://atmospherejs.com/lai/meteor-xray
+http://www.datafiddle.net/allscripts
+###
 
 if Meteor.isClient
   Template.hello.helpers
@@ -19,9 +30,17 @@ if Meteor.isClient
           console.log "click ", result
           Session.set "header", result
           tb_jq.value = result
+          
+    'click #bt_xray': () ->
+      Meteor.call "xrayScrape", tb_url.value, tb_format.value,
+        (error, result) ->
+          console.log "click ", result
+          Session.set "header", result
+          tb_xray.value = result
 
 if Meteor.isServer
   Meteor.methods
+    ###  scrape using cheerio.js ###
     chScrape: (url, format) -> 
       html = Meteor.http.get(url)
 
@@ -33,6 +52,7 @@ if Meteor.isServer
       console.log "chResults ", chResults
       chResults
   
+    ###  scrape using jsdom/jquery ###
     jqScrape: (url,format) ->
       html = Meteor.http.get(url)
       
@@ -48,3 +68,25 @@ if Meteor.isServer
         .get().join(" ")
       console.log "jqResults ", jqResults
       jqResults
+      
+    ###  scrape using x-ray.js ###
+    xrayScrape: (url, format) -> 
+#      check coffeescript self-initiating functions
+      future = new (Npm.require 'fibers/future')()
+      xray url
+        .select([{
+          $root: ['#stats_basic_nhl tr'],
+          headers: ['th']
+          data: ['td']
+          }])
+        .run (err,rowarr)->
+          rowtextarr = for row in rowarr
+            rowtext = ([row.headers..., row.data...]).join(" ") 
+            console.log rowtext
+            rowtext
+          future.return rowtextarr
+      xrayResults = do future.wait
+      console.log "xrayResults", xrayResults[1]
+      xrayResults[1]
+          
+    #    .write(process.stdout)
